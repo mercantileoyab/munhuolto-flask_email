@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Varausvahvistus{% endblock %}
+{% block content %}
+  <h2>Varausvahvistus</h2>
+  <p>Hei {{ reservation.customer.name }},</p>
+
+  {% set date_parts = reservation.date.split('-') %}
+  {% set formatted_date = date_parts[2]|int ~ '.' ~ date_parts[1]|int ~ '.' ~ date_parts[0] %}
+
+  <div style="margin-top:16px; padding: 12px 16px; background: #eaf6ff; border-left: 4px solid #2196f3;">
+    <strong>Huoltopäivä:</strong>
+    <div style="margin-top: 8px;">
+      {{ formatted_date }}
+    </div>
+  </div>
+
+  <table class="info-table" style="margin-top: 24px;">
+    <tr>
+      <td class="info-label">Auton rekisterinumero:</td>
+      <td>{{ reservation.car.plate }}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Auton malli:</td>
+      <td>{{ reservation.car.basicinfo.basicinfo.GenericName }}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Korjaamo:</td>
+      <td>{{ workshop.name }}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Korjaamon osoite:</td>
+      <td>{{ workshop.address }}</td>
+    </tr>
+  </table>
+
+  {% if reservation.customer.note %}
+    <div style="margin-top:24px; padding: 12px 16px; background: #f8f8e1; border-left: 4px solid #e0c200;">
+      <strong>Asiakkaan viesti korjaamolle:</strong>
+      <div style="margin-top: 8px; white-space: pre-line;">{{ reservation.customer.note }}</div>
+    </div>
+  {% endif %}
+
+  {% set maintenance_services = reservation.services | selectattr('category', 'equalto', 'maintenance') | list %}
+  {% set extra_services = reservation.services | selectattr('category', 'equalto', 'extra') | list %}
+
+  {% if maintenance_services %}
+    <h3 style="margin-top:24px;">Valitut huollot</h3>
+    <ul>
+      {% for service in maintenance_services %}
+        <li>{{ service.translations.fi.name }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if extra_services %}
+    <h3 style="margin-top:24px;">Valitut lisäpalvelut</h3>
+    <ul>
+      {% for service in extra_services %}
+        <li>{{ service.translations.fi.name }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p>
+    Voit tarkastella varaustasi alla olevasta linkistä:
+  </p>
+  <a class="btn" href="{{ frontendUrl }}/reservations/{{ reservation.reservationUuid.uuid }}">
+    Näytä varaus
+  </a>
+
+  <p style="margin-top:24px;">Kiitos, että käytät Omahuolto.fi-palvelua!</p>
+{% endblock %}

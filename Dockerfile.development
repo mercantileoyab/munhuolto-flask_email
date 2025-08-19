@@ -1,0 +1,21 @@
+# Use official Python image
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Expose port 3005
+EXPOSE 3005
+
+# Set environment variables for production
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_RUN_PORT=3005
+ENV FLASK_ENV=production
+
+# Run Flask without hot reload (use a production WSGI server)
+CMD ["gunicorn", "--bind", "0.0.0.0:3005", "app:app"]
