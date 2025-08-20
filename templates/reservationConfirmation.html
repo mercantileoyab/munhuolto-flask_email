@@ -1,72 +1,96 @@
 {% extends "base.html" %}
 {% block title %}Varausvahvistus{% endblock %}
 {% block content %}
-  <h2>Varausvahvistus</h2>
-  <p>Hei {{ reservation.customer.name }},</p>
+  {% include 'header.html' %}
+  <p style="margin-bottom: 8px;">Hei {{ reservation.customer.name }},</p>
+  <p>Kiitos varauksestasi. Alta näet varauksesi tiedot.</p>
 
-  {% set date_parts = reservation.date.split('-') %}
-  {% set formatted_date = date_parts[2]|int ~ '.' ~ date_parts[1]|int ~ '.' ~ date_parts[0] %}
-
-  <div style="margin-top:16px; padding: 12px 16px; background: #eaf6ff; border-left: 4px solid #2196f3;">
-    <strong>Huoltopäivä:</strong>
-    <div style="margin-top: 8px;">
-      {{ formatted_date }}
-    </div>
+  <!-- Auton tiedot -->
+  <div style="border: 2px solid #009fe3; border-radius: 6px; padding: 16px; margin-top: 24px; margin-bottom: 24px;">
+    <strong style="font-size: 1.1em;">Auton tiedot</strong>
+    <table style="margin-top: 12px;">
+      <tr>
+        <td style="font-weight: bold; padding-right: 12px;">Auton rekisterinumero:</td>
+        <td>{{ reservation.car.plate }}</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; padding-right: 12px;">Auton malli:</td>
+        <td>{{ reservation.car.basicinfo.basicinfo.GenericName }}</td>
+      </tr>
+    </table>
+    {% if reservation.customer.note %}
+      <div style="margin-top: 16px;">
+        <span style="font-weight: bold;">Asiakkaan viesti korjaamolle:</span>
+        <div style="padding: 8px 12px; white-space: pre-line;">
+          {{ reservation.customer.note }}
+        </div>
+      </div>
+    {% endif %}
   </div>
 
-  <table class="info-table" style="margin-top: 24px;">
-    <tr>
-      <td class="info-label">Auton rekisterinumero:</td>
-      <td>{{ reservation.car.plate }}</td>
-    </tr>
-    <tr>
-      <td class="info-label">Auton malli:</td>
-      <td>{{ reservation.car.basicinfo.basicinfo.GenericName }}</td>
-    </tr>
-    <tr>
-      <td class="info-label">Korjaamo:</td>
-      <td>{{ workshop.name }}</td>
-    </tr>
-    <tr>
-      <td class="info-label">Korjaamon osoite:</td>
-      <td>{{ workshop.address }}</td>
-    </tr>
-  </table>
-
-  {% if reservation.customer.note %}
-    <div style="margin-top:24px; padding: 12px 16px; background: #f8f8e1; border-left: 4px solid #e0c200;">
-      <strong>Asiakkaan viesti korjaamolle:</strong>
-      <div style="margin-top: 8px; white-space: pre-line;">{{ reservation.customer.note }}</div>
+  <!-- Huollon tiedot -->
+  <div style="border: 2px solid #009fe3; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+    <strong style="font-size: 1.1em;">Huollon tiedot</strong>
+    <div style="margin-top: 8px;">
+      Sinulle varattu huoltopäivä: 
+      <strong>
+        {% set date_parts = reservation.date.split('-') %}
+        {% set formatted_date = date_parts[2]|int ~ '.' ~ date_parts[1]|int ~ '.' ~ date_parts[0] %}
+        {{ formatted_date }}
+      </strong>
     </div>
-  {% endif %}
+    {% set maintenance_services = reservation.services | selectattr('category', 'equalto', 'maintenance') | list %}
+    {% set extra_services = reservation.services | selectattr('category', 'equalto', 'extra') | list %}
 
-  {% set maintenance_services = reservation.services | selectattr('category', 'equalto', 'maintenance') | list %}
-  {% set extra_services = reservation.services | selectattr('category', 'equalto', 'extra') | list %}
+    {% if maintenance_services %}
+      <div style="margin-top: 16px;">
+        <span style="font-weight: bold;">Valitut huollot</span>
+        <ul style="margin-top: 4px;">
+          {% for service in maintenance_services %}
+            <li>{{ service.translations.fi.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 
-  {% if maintenance_services %}
-    <h3 style="margin-top:24px;">Valitut huollot</h3>
-    <ul>
-      {% for service in maintenance_services %}
-        <li>{{ service.translations.fi.name }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+    {% if extra_services %}
+      <div style="margin-top: 16px;">
+        <span style="font-weight: bold;">Valitut lisäpalvelut</span>
+        <ul style="margin-top: 4px;">
+          {% for service in extra_services %}
+            <li>{{ service.translations.fi.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
 
-  {% if extra_services %}
-    <h3 style="margin-top:24px;">Valitut lisäpalvelut</h3>
-    <ul>
-      {% for service in extra_services %}
-        <li>{{ service.translations.fi.name }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+  <!-- Korjaamon tiedot -->
+  <div style="border: 2px solid #009fe3; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+    <strong style="font-size: 1.1em;">Korjaamon tiedot</strong>
+    <table style="margin-top: 12px;">
+      <tr>
+        <td style="font-weight: bold; padding-right: 12px;">Korjaamo:</td>
+        <td>{{ workshop.name }}</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; padding-right: 12px;">Korjaamon osoite:</td>
+        <td>{{ workshop.address }}</td>
+      </tr>
+      {% if workshop.email %}
+      <tr>
+        <td style="font-weight: bold; padding-right: 12px;">Sähköposti:</td>
+        <td>{{ workshop.email }}</td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
 
-  <p>
-    Voit tarkastella varaustasi alla olevasta linkistä:
-  </p>
-  <a class="btn" href="{{ frontendUrl }}/reservations/{{ reservation.reservationUuid.uuid }}">
+  <p>Voit tarkastella varaustasi alla olevasta linkistä:</p>
+  <a class="btn" href="{{ frontendUrl }}/reservations/{{ reservation.reservationUuid.uuid }}" style="display:inline-block; background:#2196f3; color:#fff; padding:10px 24px; border-radius:4px; text-decoration:none; font-weight:bold;">
     Näytä varaus
   </a>
 
-  <p style="margin-top:24px;">Kiitos, että käytät Omahuolto.fi-palvelua!</p>
+  <p style="margin-top:24px;">Kiitos, että käytät Munhuolto.fi-palvelua!</p>
+   {% include 'footer.html' %} 
 {% endblock %}

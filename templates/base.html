@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Omahuolto.fi Email{% endblock %}</title>
+    <title>{% block title %}Munhuolto.fi Email{% endblock %}</title>
     <style>
       body {
-        background-color: #f6f9fc;
+        background-color: #fff; /* Changed to white */
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -25,8 +25,10 @@
     </style>
   </head>
   <body>
+    <!-- {% include 'header.html' %} -->
     <div class="container">
       {% block content %}{% endblock %}
     </div>
+    <!-- {% include 'footer.html' %} -->
   </body>
 </html>

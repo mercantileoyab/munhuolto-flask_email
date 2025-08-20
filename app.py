@@ -8,7 +8,7 @@ def home():
 
 @app.route("/reservation-confirmation", methods=["POST"])
 def reservation_confirmation():
-    # Get JSON data from request body
+    # Get JSON data from request body 
     data = request.get_json() or {}
     print("Received data:", data) 
     # print("Received data:", data)
